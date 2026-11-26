@@ -29,6 +29,12 @@ jobs:
           echo "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
           ls "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.cc }}"
 
+      - name: Fix anet compatibility and tidy
+        shell: bash
+        run: |
+          go get github.com/wlynxg/anet@latest
+          go mod tidy
+
       - name: Build xray
         shell: bash
         env:
