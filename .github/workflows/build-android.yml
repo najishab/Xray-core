@@ -22,6 +22,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Add NDK clang to PATH
+        shell: bash
+        run: |
+          echo "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin" >> $GITHUB_PATH
+          ls "$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.cc }}"
+
       - name: Build xray
         shell: bash
         env:
@@ -29,12 +36,13 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           GOARM: ${{ matrix.goarm }}
           CGO_ENABLED: '1'
+          CC: ${{ matrix.cc }}
         run: |
-          export CC="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.cc }}"
-          echo "CC=$CC"
+          which $CC
           go build -o xray -trimpath -ldflags "-s -w -buildid=" ./main
           mkdir -p dist
           zip -j "dist/Xray-android-${{ matrix.abi }}.zip" xray
+
       - uses: actions/upload-artifact@v4
         with:
           name: Xray-android-${{ matrix.abi }}
